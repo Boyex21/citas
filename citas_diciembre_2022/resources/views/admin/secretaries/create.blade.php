@@ -68,7 +68,7 @@
 									<input class="form-control @error('phone') is-invalid @enderror" type="text" name="phone" required placeholder="Introduzca un teléfono" value="{{ old('phone') }}" id="phone">
 								</div>
 
-								<div class="form-group col-lg-6 col-md-6 col-12">
+								<div class="form-group col-12">
 									<label class="col-form-label">Dirección<b class="text-danger">*</b></label>
 									<input class="form-control @error('address') is-invalid @enderror" type="text" name="address" required placeholder="Introduzca una dirección" value="{{ old('address') }}">
 								</div>
@@ -80,6 +80,16 @@
 										@foreach($locations as $location)
 										<option value="{{ $location->slug }}" @if(old('location_id')==$location->slug) selected @endif>{{ $location->name }}</option>
 										@endforeach
+									</select>
+								</div>
+
+								<div class="form-group col-lg-6 col-md-6 col-12">
+									<label class="col-form-label">Género<b class="text-danger">*</b></label>
+									<select class="form-control @error('gender') is-invalid @enderror" name="gender" required>
+										<option value="">Seleccione</option>
+										<option value="1" @if(old('gender')=='1') selected @endif>Masculino</option>
+										<option value="2" @if(old('gender')=='2') selected @endif>Femenino</option>
+										<option value="3" @if(old('gender')=='3') selected @endif>Otro</option>
 									</select>
 								</div>
 								

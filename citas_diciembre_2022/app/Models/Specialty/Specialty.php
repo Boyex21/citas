@@ -3,6 +3,7 @@
 namespace App\Models\Specialty;
 
 use App\Models\User;
+use App\Models\Appointment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -53,5 +54,9 @@ class Specialty extends Model
 
     public function users() {
         return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
+    public function appointments() {
+        return $this->hasMany(Appointment::class);
     }
 }

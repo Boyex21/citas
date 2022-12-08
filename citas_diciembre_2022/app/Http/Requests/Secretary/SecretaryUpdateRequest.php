@@ -34,6 +34,7 @@ class SecretaryUpdateRequest extends FormRequest
             'phone' => 'required|string|min:5|max:15',
             'address' => 'required|string|min:2|max:191',
             'location_id' => 'required|'.Rule::in($locations),
+            'gender' => 'required|'.Rule::in(['1', '2', '3']),
             'state' => 'required|'.Rule::in(['0', '1'])
         ];
     }

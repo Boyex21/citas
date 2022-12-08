@@ -74,7 +74,7 @@
 									<input class="form-control @error('phone') is-invalid @enderror" type="text" name="phone" required placeholder="Introduzca un teléfono" value="{{ $user->phone }}" id="phone">
 								</div>
 
-								<div class="form-group col-lg-6 col-md-6 col-12">
+								<div class="form-group col-12">
 									<label class="col-form-label">Dirección<b class="text-danger">*</b></label>
 									<input class="form-control @error('address') is-invalid @enderror" type="text" name="address" required placeholder="Introduzca una dirección" value="{{ $user->address }}">
 								</div>
@@ -90,10 +90,18 @@
 								</div>
 
 								<div class="form-group col-lg-6 col-md-6 col-12">
-									<label class="col-form-label">Especialidades<b class="text-danger">*</b></label>
-									<select class="form-control selectpicker @error('specialty_id') is-invalid @enderror" name="specialty_id[]" required title="Seleccione" data-size="10" multiple>
-										{!! selectArray($specialties, $user['specialties']) !!}
+									<label class="col-form-label">Género<b class="text-danger">*</b></label>
+									<select class="form-control @error('gender') is-invalid @enderror" name="gender" required>
+										<option value="">Seleccione</option>
+										<option value="1" @if($user->gender=='Masculino') selected @endif>Masculino</option>
+										<option value="2" @if($user->gender=='Femenino') selected @endif>Femenino</option>
+										<option value="3" @if($user->gender=='Otro') selected @endif>Otro</option>
 									</select>
+								</div>
+
+								<div class="form-group col-lg-6 col-md-6 col-12">
+									<label class="col-form-label">Designación<b class="text-danger">*</b></label>
+									<input class="form-control @error('designation') is-invalid @enderror" type="text" name="designation" required placeholder="Introduzca una designación" value="{{ $user->designation }}">
 								</div>
 
 								<div class="form-group col-lg-6 col-md-6 col-12">
@@ -102,6 +110,23 @@
 										<option value="1" @if($user->state=="Activo") selected @endif>Activo</option>
 										<option value="0" @if($user->state=="Inactivo") selected @endif>Inactivo</option>
 									</select>
+								</div>
+
+								<div class="form-group col-12">
+									<label class="col-form-label">Especialidades<b class="text-danger">*</b></label>
+									<select class="form-control selectpicker @error('specialty_id') is-invalid @enderror" name="specialty_id[]" required title="Seleccione" data-size="10" multiple>
+										{!! selectArray($specialties, $user['specialties']) !!}
+									</select>
+								</div>
+
+								<div class="form-group col-12">
+									<label class="col-form-label">Sobre Mi<b class="text-danger">*</b></label>
+									<textarea class="form-control @error('about') is-invalid @enderror" name="about" required placeholder="Introduzca una descripción" rows="6">{{ $user->about }}</textarea>
+								</div>
+
+								<div class="form-group col-12">
+									<label class="col-form-label">Educación<b class="text-danger">*</b></label>
+									<textarea class="form-control @error('education') is-invalid @enderror" name="education" required placeholder="Introduzca la educación" rows="6">{{ $user->education }}</textarea>
 								</div>
 
 								<div class="form-group col-12">

@@ -49,7 +49,7 @@ class DoctorController extends Controller
      */
     public function store(DoctorStoreRequest $request) {
         $location=Location::where('slug', request('location_id'))->firstOrFail();
-        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'email' => request('email'), 'address' => request('address'), 'password' => Hash::make(request('password')), 'location_id' => $location->id);
+        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'email' => request('email'), 'address' => request('address'), 'gender' => request('gender'), 'designation' => request('designation'), 'about' => request('about'), 'education' => request('education'), 'password' => Hash::make(request('password')), 'location_id' => $location->id);
         $user=User::create($data);
 
         if ($user) {
@@ -113,7 +113,7 @@ class DoctorController extends Controller
      */
     public function update(DoctorUpdateRequest $request, User $user) {
         $location=Location::where('slug', request('location_id'))->firstOrFail();
-        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'address' => request('address'), 'state' => request('state'), 'location_id' => $location->id);
+        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'address' => request('address'), 'gender' => request('gender'), 'designation' => request('designation'), 'about' => request('about'), 'education' => request('education'), 'state' => request('state'), 'location_id' => $location->id);
         $user->fill($data)->save();        
 
         if ($user) {
@@ -177,6 +177,7 @@ class DoctorController extends Controller
 
     public function schedules(Request $request, User $user) {
         $schedules=false;
+        ScheduleUser::where('user_id', $user->id)->delete();
         foreach (request('schedule_id') as $key => $value) {
             $schedule=Schedule::where('id', $value)->first();
             if (!is_null($schedule)) {

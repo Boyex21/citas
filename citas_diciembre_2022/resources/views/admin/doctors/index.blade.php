@@ -140,7 +140,7 @@
 
 						<div class="form-group col-12">
 							<label class="col-form-label">Horarios<b class="text-danger">*</b></label>
-							<select class="form-control selectpicker @error('schedule_id') is-invalid @enderror" name="schedule_id[]" required title="Seleccione" data-size="10" data-selected-text-format="count > 5" data-count-selected-text="{0} Horarios Seleccionados" multiple>
+							<select class="form-control selectpicker @error('schedule_id') is-invalid @enderror" name="schedule_id[]" required title="Seleccione" data-size="10" data-selected-text-format="count > 3" data-count-selected-text="{0} Horarios Seleccionados" multiple>
 								@foreach($schedules as $schedule)
 								<option value="{{ $schedule->id }}">{{ $schedule->day.': '.$schedule->start->format('H:i A').' - '.$schedule->end->format('H:i A') }}</option>
 								@endforeach
@@ -232,6 +232,10 @@
 @section('scripts')
 <script src="{{ asset('/admins/vendor/bootstrap-select/bootstrap-select.min.js') }}"></script>
 <script src="{{ asset('/admins/vendor/table/datatable/datatables.js') }}"></script>
+<script src="{{ asset('/admins/vendor/validate/jquery.validate.js') }}"></script>
+<script src="{{ asset('/admins/vendor/validate/additional-methods.js') }}"></script>
+<script src="{{ asset('/admins/vendor/validate/messages_es.js') }}"></script>
+<script src="{{ asset('/admins/js/validate.js') }}"></script>
 <script src="{{ asset('/admins/vendor/sweetalerts/sweetalert2.min.js') }}"></script>
 <script src="{{ asset('/admins/vendor/sweetalerts/custom-sweetalert.js') }}"></script>
 <script src="{{ asset('/admins/vendor/lobibox/Lobibox.js') }}"></script>

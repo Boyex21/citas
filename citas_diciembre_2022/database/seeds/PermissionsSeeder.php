@@ -159,6 +159,12 @@ class PermissionsSeeder extends Seeder
             Permission::create(['name' => 'roles.delete']);
         }
 
+        // Statistic Permissions
+        $permission=Permission::where('name', 'statistics.index')->first();
+        if (is_null($permission)) {
+            Permission::create(['name' => 'statistics.index']);
+        }
+
         // Setting Permissions
         $permission=Permission::where('name', 'settings.edit')->first();
         if (is_null($permission)) {

@@ -53,7 +53,7 @@
 									<th>Horario</th>
 									<th>Tipo de Consulta</th>
 									<th>Estado</th>
-                                    @if(auth()->user()->can('appointments.edit') || auth()->user()->can('appointments.active') || auth()->user()->can('appointments.deactive') || auth()->user()->can('appointments.delete'))
+                                    @if(auth()->user()->can('appointments.show') || auth()->user()->can('appointments.edit') || auth()->user()->can('appointments.active') || auth()->user()->can('appointments.deactive') || auth()->user()->can('appointments.delete'))
 									<th class="no-content">Acciones</th>
 									@endif
                                 </tr>
@@ -68,22 +68,35 @@
 									<td>{{ $appointment['schedule']->start->format('H:i A').' - '.$appointment['schedule']->end->format('H:i A') }}</td>
 									<td>{!! typeAppointment($appointment->type) !!}</td>
 									<td>{!! stateAppointment($appointment->state) !!}</td>
-									@if(auth()->user()->can('appointments.edit') || auth()->user()->can('appointments.active') || auth()->user()->can('appointments.deactive') || auth()->user()->can('appointments.delete'))
+									@if(auth()->user()->can('appointments.show') || auth()->user()->can('appointments.edit') || auth()->user()->can('appointments.active') || auth()->user()->can('appointments.deactive') || auth()->user()->can('appointments.delete'))
 									<td>
 										<div class="btn-group btn-svg-sm" role="group">
+											@can('appointments.show')
+											@if($appointment->state=='Tratado')
+											<a href="{{ route('appointments.show', ['appointment' => $appointment->id]) }}" class="btn btn-primary btn-sm bs-tooltip mr-0" title="Detalles">
+												<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+											</a>
+											@endif
+											@endcan
 											@can('appointments.edit')
+											@if($appointment->state=='Pendiente')
 											<a href="{{ route('appointments.edit', ['appointment' => $appointment->id]) }}" class="btn btn-info btn-sm bs-tooltip mr-0" title="Editar">
 												<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
 											</a>
+											@else
+											<a href="{{ route('prescriptions.edit', ['appointment' => $appointment->id]) }}" class="btn btn-info btn-sm bs-tooltip mr-0" title="Editar">
+												<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+											</a>
+											@endif
 											@endcan
 											@if($appointment->state=='Pendiente' || $appointment->state=='Cancelada')
 											@can('appointments.attend')
-											<button type="button" class="btn btn-success btn-sm bs-tooltip mr-0" title="Atender" onclick="attendAppointment('{{ $appointment->id }}')">
+											<a href="{{ route('prescriptions.create', ['appointment' => $appointment->id]) }}" class="btn btn-success btn-sm bs-tooltip mr-0" title="Atender">
 												<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-											</button>
+											</a>
 											@endcan
 											@endif
-											@if($appointment->state=='Pendiente' || $appointment->state=='Tratado')
+											@if($appointment->state=='Pendiente')
 											@can('appointments.cancel')
 											<button type="button" class="btn btn-warning btn-sm bs-tooltip mr-0" title="Cancelar" onclick="cancelAppointment('{{ $appointment->id }}')">
 												<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-power"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
@@ -126,29 +139,6 @@
 					@csrf
 					@method('PUT')
 					<button type="submit" class="btn btn-primary">Cancelar</button>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
-@endcan
-
-@can('appointments.attend')
-<div class="modal fade" id="attendAppointment" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">¿Estás seguro de que quieres atender esta cita?</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn" data-dismiss="modal">Cancelar</button>
-				<form action="#" method="POST" id="formAttendAppointment">
-					@csrf
-					@method('PUT')
-					<button type="submit" class="btn btn-primary">Atender</button>
 				</form>
 			</div>
 		</div>

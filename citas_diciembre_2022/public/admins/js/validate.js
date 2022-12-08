@@ -142,10 +142,64 @@ $(document).ready(function(){
 					maxlength: 191
 				},
 
+				dni: {
+					required: true,
+					minlength: 1,
+					maxlength: 11
+				},
+
 				phone: {
 					required: true,
 					minlength: 5,
 					maxlength: 15
+				},
+
+				address: {
+					required: true,
+					minlength: 2,
+					maxlength: 191
+				},
+
+				location_id: {
+					required: true
+				},
+
+				gender: {
+					required: true
+				},
+
+				birthday: {
+					required: true,
+					date: false,
+					time: false
+				},
+
+				weight: {
+					required: true,
+					min: 0,
+					max: 1000
+				},
+
+				designation: {
+					required: true,
+					minlength: 2,
+					maxlength: 191
+				},
+
+				'specialty_id[]': {
+					required: true
+				},
+
+				about: {
+					required: true,
+					minlength: 2,
+					maxlength: 1000
+				},
+
+				education: {
+					required: true,
+					minlength: 2,
+					maxlength: 1000
 				},
 
 				password: {
@@ -160,6 +214,24 @@ $(document).ready(function(){
 					maxlength: 40
 				}
 			},
+			messages:
+			{
+				location_id: {
+					required: 'Seleccione una opción.'
+				},
+
+				gender: {
+					required: 'Seleccione una opción.'
+				},
+
+				birthday: {
+					required: 'Seleccione una fecha.'
+				},
+
+				'specialty_id[]': {
+					required: 'Seleccione una opción.'
+				}
+			},
 			submitHandler: function(form) {
 				$("button[action='profile']").attr('disabled', true);
 				form.submit();
@@ -167,7 +239,7 @@ $(document).ready(function(){
 		});
 	});
 
-	// Administrators
+	// Users
 	$("button[action='user']").on("click",function(){
 		$("#formUser").validate({
 			rules:
@@ -201,6 +273,20 @@ $(document).ready(function(){
 					maxlength: 15
 				},
 
+				address: {
+					required: true,
+					minlength: 2,
+					maxlength: 191
+				},
+
+				location_id: {
+					required: true
+				},
+
+				gender: {
+					required: true
+				},
+
 				type: {
 					required: true
 				},
@@ -225,6 +311,14 @@ $(document).ready(function(){
 			{
 				email: {
 					remote: "Este correo ya esta en uso."
+				},
+
+				location_id: {
+					required: 'Seleccione una opción.'
+				},
+
+				gender: {
+					required: 'Seleccione una opción.'
 				},
 
 				type: {
@@ -286,8 +380,30 @@ $(document).ready(function(){
 					required: true
 				},
 
+				gender: {
+					required: true
+				},
+
+				designation: {
+					required: true,
+					minlength: 2,
+					maxlength: 191
+				},
+
 				'specialty_id[]': {
 					required: true
+				},
+
+				about: {
+					required: true,
+					minlength: 2,
+					maxlength: 1000
+				},
+
+				education: {
+					required: true,
+					minlength: 2,
+					maxlength: 1000
 				},
 
 				state: {
@@ -316,11 +432,37 @@ $(document).ready(function(){
 					required: 'Seleccione una opción.'
 				},
 
+				gender: {
+					required: 'Seleccione una opción.'
+				},
+
 				'specialty_id[]': {
 					required: 'Seleccione una opción.'
 				},
 
 				state: {
+					required: 'Seleccione una opción.'
+				}
+			},
+			submitHandler: function(form) {
+				$("button[action='doctor']").attr('disabled', true);
+				form.submit();
+			}
+		});
+	});
+
+	// Doctor Schedules
+	$("button[action='doctor']").on("click",function(){
+		$("#formScheduleDoctor").validate({
+			rules:
+			{
+				'schedule_id[]': {
+					required: true
+				}
+			},
+			messages:
+			{
+				'schedule_id[]': {
 					required: 'Seleccione una opción.'
 				}
 			},
@@ -375,6 +517,10 @@ $(document).ready(function(){
 					required: true
 				},
 
+				gender: {
+					required: true
+				},
+
 				state: {
 					required: true
 				},
@@ -398,6 +544,10 @@ $(document).ready(function(){
 				},
 
 				location_id: {
+					required: 'Seleccione una opción.'
+				},
+
+				gender: {
 					required: 'Seleccione una opción.'
 				},
 
@@ -429,6 +579,12 @@ $(document).ready(function(){
 					maxlength: 191
 				},
 
+				dni: {
+					required: true,
+					minlength: 1,
+					maxlength: 11
+				},
+
 				email: {
 					required: true,
 					email: true,
@@ -454,6 +610,22 @@ $(document).ready(function(){
 
 				location_id: {
 					required: true
+				},
+
+				gender: {
+					required: true
+				},
+
+				birthday: {
+					required: true,
+					date: false,
+					time: false
+				},
+
+				weight: {
+					required: true,
+					min: 0,
+					max: 1000
 				},
 
 				state: {
@@ -482,6 +654,14 @@ $(document).ready(function(){
 					required: 'Seleccione una opción.'
 				},
 
+				gender: {
+					required: 'Seleccione una opción.'
+				},
+
+				birthday: {
+					required: 'Seleccione una fecha.'
+				},
+
 				state: {
 					required: 'Seleccione una opción.'
 				}
@@ -498,15 +678,15 @@ $(document).ready(function(){
 		$("#formAppointment").validate({
 			rules:
 			{
-				doctor_id: {
-					required: true
-				},
-
 				patient_id: {
 					required: true
 				},
 
-				day: {
+				doctor_id: {
+					required: true
+				},
+
+				specialty_id: {
 					required: true
 				},
 
@@ -526,15 +706,15 @@ $(document).ready(function(){
 			},
 			messages:
 			{
-				doctor_id: {
-					required: 'Seleccione una opción.'
-				},
-
 				patient_id: {
 					required: 'Seleccione una opción.'
 				},
 
-				day: {
+				doctor_id: {
+					required: 'Seleccione una opción.'
+				},
+
+				specialty_id: {
 					required: 'Seleccione una opción.'
 				},
 
@@ -552,6 +732,119 @@ $(document).ready(function(){
 			},
 			submitHandler: function(form) {
 				$("button[action='appointment']").attr('disabled', true);
+				form.submit();
+			}
+		});
+	});
+
+	// Prescriptions
+	$("button[action='prescription']").on("click",function(){
+		if ($("#formPrescription").length) {
+			$("#formPrescription").validate().destroy();
+		}
+		var covid=false;
+		if ($('select[name="covid"]').val()=="1") {
+			covid=true;
+		}
+		$("#formPrescription").validate({
+			rules:
+			{
+				blood_pressure: {
+					required: true,
+					min: 0,
+					max: 200
+				},
+
+				pulse_rate: {
+					required: true,
+					min: 0,
+					max: 200
+				},
+
+				temperature: {
+					required: true,
+					min: 0,
+					max: 200
+				},
+
+				problem_description: {
+					required: true,
+					minlength: 2,
+					maxlength: 1000
+				},
+
+				covid: {
+					required: true
+				},
+
+				covid_date: {
+					required: covid,
+					date: false,
+					time: false
+				},
+
+				'symptoms[]': {
+					required: covid
+				},
+
+				uci: {
+					required: covid
+				},
+
+				covid_state: {
+					required: covid
+				},
+
+				test: {
+					required: true,
+					minlength: 2,
+					maxlength: 1000
+				},
+
+				advice: {
+					required: true,
+					minlength: 2,
+					maxlength: 1000
+				},
+
+				days: {
+					required: true,
+					min: 0,
+					max: 100
+				},
+
+				time: {
+					required: true
+				}
+			},
+			messages:
+			{
+				covid: {
+					required: 'Seleccione una opción.'
+				},
+
+				covid_date: {
+					required: 'Seleccione una fecha.'
+				},
+
+				'symptoms[]': {
+					required: 'Seleccione una opción.'
+				},
+
+				uci: {
+					required: 'Seleccione una opción.'
+				},
+
+				covid_state: {
+					required: 'Seleccione una opción.'
+				},
+
+				time: {
+					required: 'Seleccione una opción.'
+				}
+			},
+			submitHandler: function(form) {
+				$("button[action='prescription']").attr('disabled', true);
 				form.submit();
 			}
 		});
@@ -606,24 +899,6 @@ $(document).ready(function(){
 			},
 			submitHandler: function(form) {
 				$("button[action='specialty']").attr('disabled', true);
-				form.submit();
-			}
-		});
-	});
-
-	// Departments
-	$("button[action='department']").on("click",function(){
-		$("#formDepartment").validate({
-			rules:
-			{
-				name: {
-					required: true,
-					minlength: 2,
-					maxlength: 191
-				}
-			},
-			submitHandler: function(form) {
-				$("button[action='department']").attr('disabled', true);
 				form.submit();
 			}
 		});

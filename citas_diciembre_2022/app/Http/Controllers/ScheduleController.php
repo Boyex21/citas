@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Appointment;
 use App\Models\Schedule\Schedule;
 use App\Models\Schedule\ScheduleUser;
 use App\Http\Requests\Schedule\ScheduleStoreRequest;
 use App\Http\Requests\Schedule\ScheduleUpdateRequest;
+use App\Http\Requests\Schedule\ScheduleDoctorRequest;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
@@ -106,5 +109,20 @@ class ScheduleController extends Controller
         } else {
             return redirect()->route('schedules.index')->with(['alert' => 'lobibox', 'type' => 'error', 'title' => 'Edición fallida', 'msg' => 'Ha ocurrido un error durante el proceso, intentelo nuevamente.']);
         }
+    }
+
+    public function getSchedules(ScheduleDoctorRequest $request){
+        $doctor=User::role(['Doctor'])->where('slug', request('doctor_id'))->first();
+        if (!is_null($doctor)) {
+            $data=[];
+            $schedules=$doctor->schedules()->where([['day', date('N', strtotime(request('date')))], ['state', '1']])->get();
+            foreach ($schedules as $key => $schedule) {
+                $countAppointment=Appointment::where([['date', date('Y-m-d', strtotime(request('date')))], ['schedule_id' , $schedule->id], ['doctor_id', $doctor->id]])->count();
+                $limit=$schedule->appointment_limit-$countAppointment;
+                $data[$key]=array('id' => $schedule->id, 'start' => $schedule->start->format('H:i A'), 'end' => $schedule->end->format('H:i A'), 'limit' => $limit);
+            }
+            return response()->json(['state' => true, 'data' => $data]);
+        }
+        return response()->json(['state' => false]);
     }
 }

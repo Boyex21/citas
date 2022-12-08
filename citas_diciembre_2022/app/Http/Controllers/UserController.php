@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Location;
 use Spatie\Permission\Models\Role;
 use App\Http\Requests\User\UserStoreRequest;
 use App\Http\Requests\User\UserUpdateRequest;
@@ -32,8 +33,9 @@ class UserController extends Controller
      */
     public function create() {
         $setting=$this->setting();
+        $locations=Location::where('state', '1')->orderBy('name', 'ASC')->get();
         $roles=Role::where([['name', '!=', 'Doctor'], ['name', '!=', 'Secretaria'], ['name', '!=', 'Paciente']])->get()->pluck('name');
-        return view('admin.users.create', compact('setting', 'roles'));
+        return view('admin.users.create', compact('setting', 'locations', 'roles'));
     }
 
     /**
@@ -43,7 +45,8 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(UserStoreRequest $request) {
-        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'email' => request('email'), 'password' => Hash::make(request('password')));
+        $location=Location::where('slug', request('location_id'))->firstOrFail();
+        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'email' => request('email'), 'address' => request('address'), 'gender' => request('gender'), 'password' => Hash::make(request('password')), 'location_id' => $location->id);
         $user=User::create($data);
 
         if ($user) {
@@ -85,8 +88,9 @@ class UserController extends Controller
             return redirect()->route('profile.edit');
         }
         $setting=$this->setting();
+        $locations=Location::where('state', '1')->orderBy('name', 'ASC')->get();
         $roles=Role::where([['name', '!=', 'Doctor'], ['name', '!=', 'Secretaria'], ['name', '!=', 'Paciente']])->get()->pluck('name');
-        return view('admin.users.edit', compact('setting', 'user', 'roles'));
+        return view('admin.users.edit', compact('setting', 'user', 'locations', 'roles'));
     }
 
     /**
@@ -97,8 +101,9 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(UserUpdateRequest $request, User $user) {
-        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'state' => request('state'), 'phone' => request('phone'));
-        $user->fill($data)->save();        
+        $location=Location::where('slug', request('location_id'))->firstOrFail();
+        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'address' => request('address'), 'gender' => request('gender'), 'state' => request('state'), 'location_id' => $location->id);
+        $user->fill($data)->save();
 
         if ($user) {
             $user->syncRoles([request('type')]);

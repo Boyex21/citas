@@ -22,7 +22,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = ['name', 'lastname', 'slug', 'photo', 'phone', 'address', 'email', 'password', 'state', 'location_id'];
+    protected $fillable = ['name', 'lastname', 'slug', 'photo', 'dni', 'phone', 'address', 'email', 'gender', 'birthday', 'weight', 'designation', 'about', 'education', 'password', 'state', 'location_id'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -40,6 +40,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'birthday' => 'datetime'
     ];
 
     /**
@@ -51,6 +52,33 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordNotification($token));
+    }
+
+    /**
+     * Get the age.
+     *
+     * @return string
+     */
+    public function getAgeAttribute()
+    {
+        return age($this->birthday);
+    }
+
+    /**
+     * Get the gender.
+     *
+     * @return string
+     */
+    public function getGenderAttribute($value)
+    {
+        if ($value=='1') {
+            return 'Masculino';
+        } elseif ($value=='2') {
+            return 'Femenino';
+        } elseif ($value=='3') {
+            return 'Otro';
+        }
+        return 'Desconocido';
     }
 
     /**

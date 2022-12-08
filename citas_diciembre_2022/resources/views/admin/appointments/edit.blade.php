@@ -46,41 +46,35 @@
 							@method('PUT')
 							<div class="row">
 								<div class="form-group col-lg-6 col-md-6 col-12">
-									<label class="col-form-label">Doctor</label>
-									<input class="form-control text-dark" type="text" disabled placeholder="Doctor" value="{{ $appointment['doctor']->name.' '.$appointment['doctor']->lastname }}">
-								</div>
-
-								<div class="form-group col-lg-6 col-md-6 col-12">
 									<label class="col-form-label">Paciente</label>
 									<input class="form-control text-dark" type="text" disabled placeholder="Paciente" value="{{ $appointment['user']->name.' '.$appointment['user']->lastname }}">
 								</div>
 
 								<div class="form-group col-lg-6 col-md-6 col-12">
-									<label class="col-form-label">Día<b class="text-danger">*</b></label>
-									<select class="form-control @error('day') is-invalid @enderror" name="day" required>
+									<label class="col-form-label">Doctor</label>
+									<input class="form-control text-dark" type="text" disabled placeholder="Doctor" value="{{ $appointment['doctor']->name.' '.$appointment['doctor']->lastname }}">
+								</div>
+
+								<div class="form-group col-lg-6 col-md-6 col-12">
+									<label class="col-form-label">Especialidad<b class="text-danger">*</b></label>
+									<select class="form-control @error('specialty_id') is-invalid @enderror" name="specialty_id" required id="selectSpecialties">
 										<option value="">Seleccione</option>
-										<option value="1" @if($appointment->day=='Lunes') selected @endif>Lunes</option>
-										<option value="2" @if($appointment->day=='Martes') selected @endif>Martes</option>
-										<option value="3" @if($appointment->day=='Miércoles') selected @endif>Miércoles</option>
-										<option value="4" @if($appointment->day=='Jueves') selected @endif>Jueves</option>
-										<option value="5" @if($appointment->day=='Viernes') selected @endif>Viernes</option>
-										<option value="6" @if($appointment->day=='Sábado') selected @endif>Sábado</option>
-										<option value="7" @if($appointment->day=='Domingo') selected @endif>Domingo</option>
+										@foreach($specialties as $specialty)
+										<option value="{{ $specialty->slug }}" @if($appointment->specialty_id==$specialty->id) selected @endif>{{ $specialty->name }}</option>
+										@endforeach
 									</select>
 								</div>
 
 								<div class="form-group col-lg-6 col-md-6 col-12">
 									<label class="col-form-label">Fecha<b class="text-danger">*</b></label>
-									<input class="form-control date @error('date') is-invalid @enderror" type="text" required name="date" placeholder="Seleccione" value="{{ $appointment->date->format('d-m-Y') }}" id="flatpickrDateMin">
+									<input class="form-control date scheduleDate @error('date') is-invalid @enderror" type="text" required name="date" placeholder="Seleccione" value="{{ $appointment->date->format('d-m-Y') }}" id="flatpickrDateMin">
 								</div>
 
 								<div class="form-group col-lg-6 col-md-6 col-12">
 									<label class="col-form-label">Horario<b class="text-danger">*</b></label>
 									<select class="form-control @error('schedule_id') is-invalid @enderror" name="schedule_id" required>
 										<option value="">Seleccione</option>
-										@foreach($schedules as $schedule)
-										<option value="{{ $schedule->id }}" @if($appointment->schedule_id==$schedule->id) selected @endif>{{ $schedule->start->format('H:i A').' - '.$schedule->end->format('H:i A') }}</option>
-										@endforeach
+										{!! selectArrayDoctorSchedules($appointment['doctor']->slug, [$appointment->schedule_id], $appointment->date->format('d-m-Y')) !!}
 									</select>
 								</div>
 

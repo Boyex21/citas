@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Department;
+namespace App\Http\Requests\Specialty;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
-class DepartmentUpdateRequest extends FormRequest
+class SpecialtyDoctorRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +26,9 @@ class DepartmentUpdateRequest extends FormRequest
      */
     public function rules()
     {
+        $doctors=User::role(['Doctor'])->where('state', '1')->get()->pluck('slug');
         return [
-            'name' => 'required|string|min:2|max:191'
+            'doctor_id' => 'required|'.Rule::in($doctors),
         ];
     }
 }

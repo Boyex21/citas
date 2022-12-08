@@ -81,6 +81,7 @@ return [
     'roles.show' => 'Ver Roles',
     'roles.edit' => 'Editar Roles',
     'roles.delete' => 'Eliminar Roles',
-    'roles.permissions' => 'Agregar Permisos a Rol'
+    'roles.permissions' => 'Agregar Permisos a Rol',
+    'settings.edit' => 'Editar Ajustes',
 ];
 ?>

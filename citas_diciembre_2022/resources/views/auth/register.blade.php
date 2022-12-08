@@ -27,6 +27,11 @@
                                 <input id="lastname" name="lastname" type="text" class="form-control @error('lastname') is-invalid @enderror" required placeholder="Apellido" value="{{ old('lastname') }}" minlength="2" maxlength="191">
                             </div>
 
+                            <div id="dni-field" class="field-wrapper input">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                <input id="dni" name="dni" type="text" class="form-control @error('dni') is-invalid @enderror" required placeholder="Cédula" value="{{ old('dni') }}" minlength="1" maxlength="11">
+                            </div>
+
                             <div id="email-field" class="field-wrapper input">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-at-sign"><circle cx="12" cy="12" r="4"></circle><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path></svg>
                                 <input id="email" name="email" type="email" class="form-control @error('email') is-invalid @enderror" placeholder="Email" required value="{{ old('email') }}" minlength="5" maxlength="191">

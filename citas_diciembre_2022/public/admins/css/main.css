@@ -2176,3 +2176,7 @@ label.error {
   /*border: 1px red solid;
   border-top: none;*/
 }
+
+.bootstrap-select.btn-group > .disabled, .flatpickr-input.disabled {
+  background-color: #f1f2f3 !important;
+}

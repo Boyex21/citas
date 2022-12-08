@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Schedule\Schedule;
+use App\Models\Specialty\Specialty;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -10,10 +11,11 @@ class Appointment extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['day', 'date', 'blood_pressure', 'pulse_rate', 'temperature', 'problem_description', 'advice', 'test', 'type', 'state', 'user_id', 'doctor_id'];
+    protected $fillable = ['day', 'date', 'blood_pressure', 'pulse_rate', 'temperature', 'problem_description', 'covid', 'covid_date', 'uci', 'covid_state', 'advice', 'test', 'days', 'time', 'type', 'state', 'specialty_id', 'schedule_id', 'user_id', 'doctor_id'];
 
     protected $casts = [
-        'date' => 'datetime'
+        'date' => 'datetime',
+        'covid_date' => 'datetime'
     ];
 
     /**
@@ -37,6 +39,68 @@ class Appointment extends Model
             return 'Sábado';
         } elseif ($value=='7') {
             return 'Domingo';
+        }
+        return 'Desconocido';
+    }
+
+    /**
+     * Get the covid.
+     *
+     * @return string
+     */
+    public function getCovidAttribute($value)
+    {
+        if ($value=='0') {
+            return 'No';
+        } elseif ($value=='1') {
+            return 'Si';
+        }
+        return 'Desconocido';
+    }
+
+    /**
+     * Get the uci.
+     *
+     * @return string
+     */
+    public function getUciAttribute($value)
+    {
+        if ($value=='0') {
+            return 'No';
+        } elseif ($value=='1') {
+            return 'Si';
+        }
+        return 'Desconocido';
+    }
+
+    /**
+     * Get the covid state.
+     *
+     * @return string
+     */
+    public function getCovidStateAttribute($value)
+    {
+        if ($value=='1') {
+            return 'Recuperado';
+        } elseif ($value=='2') {
+            return 'No Recuperado';
+        }
+        return 'Desconocido';
+    }
+
+    /**
+     * Get the time.
+     *
+     * @return string
+     */
+    public function getTimeAttribute($value)
+    {
+        if ($value=='1') {
+            return 'Días';
+        } elseif ($value=='2') {
+            return 'Meses';
+        } elseif ($value=='3') {
+            return 'Años';
         }
         return 'Desconocido';
     }
@@ -82,12 +146,20 @@ class Appointment extends Model
      */
     public function resolveRouteBinding($value, $field = null)
     {
-        $appointment=$this->with(['user', 'doctor'])->where($field, $value)->first();
+        $appointment=$this->with(['specialty', 'schedule', 'user', 'doctor', 'prescriptions', 'symptoms'])->where($field, $value)->first();
         if (!is_null($appointment)) {
             return $appointment;
         }
 
         return abort(404);
+    }
+
+    public function specialty() {
+        return $this->belongsTo(Specialty::class);
+    }
+
+    public function schedule() {
+        return $this->belongsTo(Schedule::class);
     }
 
     public function user() {
@@ -96,5 +168,13 @@ class Appointment extends Model
 
     public function doctor() {
         return $this->belongsTo(User::class, 'doctor_id');
+    }
+
+    public function prescriptions() {
+        return $this->hasMany(Prescription::class);
+    }
+
+    public function symptoms() {
+        return $this->hasMany(AppointmentSymptom::class);
     }
 }

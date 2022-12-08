@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Doctor;
 
 use App\Models\Location;
-USE App\Models\Specialty\Specialty;
+use App\Models\Specialty\Specialty;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -36,6 +36,10 @@ class DoctorUpdateRequest extends FormRequest
             'phone' => 'required|string|min:5|max:15',
             'address' => 'required|string|min:2|max:191',
             'location_id' => 'required|'.Rule::in($locations),
+            'gender' => 'required|'.Rule::in(['1', '2', '3']),
+            'designation' => 'required|string|min:2|max:191',
+            'about' => 'required|string|min:2|max:1000',
+            'education' => 'required|string|min:2|max:1000',
             'specialty_id' => 'required|array',
             'specialty_id.*' => 'required|'.Rule::in($specialties),
             'state' => 'required|'.Rule::in(['0', '1'])

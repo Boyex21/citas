@@ -321,6 +321,17 @@ $(document).ready(function() {
     });
   }
 
+  if ($('.min-decimal').length) {
+    $(".min-decimal").TouchSpin({
+      min: 0,
+      max: 1000,
+      step: 0.01,
+      decimals: 2,
+      buttondown_class: 'btn btn-primary pt-2 pb-3',
+      buttonup_class: 'btn btn-primary pt-2 pb-3'
+    });
+  }
+
   // Dmuploader
   if ($('#documents-files').length) {
     $('#documents-files').dmUploader({
@@ -710,3 +721,322 @@ function removeFile(element, event) {
     });
   }
 }
+
+// Function for add specialties in select
+$('.scheduleDoctor').change(function() {
+  var doctor_id=$('.scheduleDoctor').val();
+  $('#selectSpecialties option').remove();
+  $('#selectSpecialties').append($('<option>', {
+    value: '',
+    text: 'Seleccione'
+  }));
+  if (doctor_id!="") {
+    $.ajax({
+      url: '/admin/especialidades/doctor',
+      type: 'GET',
+      dataType: 'json',
+      data: {doctor_id: doctor_id}
+    })
+    .done(function(obj) {
+      if (obj.state) {
+        $('#selectSpecialties option[value!=""]').remove();
+        for (var i=obj.data.length-1; i>=0; i--) {
+          $('#selectSpecialties').append($('<option>', {
+            value: obj.data[i].slug,
+            text: obj.data[i].name
+          }));
+        }
+      } else {
+        errorNotification();
+      }
+    })
+    .fail(function() {
+      errorNotification();
+    });
+  }
+});
+
+// Function for add schedules in select
+$('.scheduleDoctor, .scheduleDate').change(function() {
+  var doctor_id=$('.scheduleDoctor').val(), date=$('.scheduleDate').val();
+  $('#selectSchedules option').remove();
+  $('#selectSchedules').append($('<option>', {
+    value: '',
+    text: 'Seleccione'
+  }));
+  if (doctor_id!="" && date!="") {
+    $.ajax({
+      url: '/admin/horarios/disponible',
+      type: 'GET',
+      dataType: 'json',
+      data: {doctor_id: doctor_id, date: date}
+    })
+    .done(function(obj) {
+      if (obj.state) {
+        $('#selectSchedules option[value!=""]').remove();
+        for (var i=obj.data.length-1; i>=0; i--) {
+          $('#selectSchedules').append($('<option>', {
+            value: obj.data[i].id,
+            text: obj.data[i].start+' - '+obj.data[i].end+' (Citas Disponibles: '+obj.data[i].limit+')'
+          }));
+        }
+      } else {
+        errorNotification();
+      }
+    })
+    .fail(function() {
+      errorNotification();
+    });
+  }
+});
+
+// Add medicine to prescription (Create)
+$('#addMedicinePrescription').click(function(event) {
+  var appointment=$(this).attr('slug'), medicine=$('#prescriptionMedicine').val(), dosage=$('#prescriptionDosage').val(), days=$('#prescriptionDays').val(), time=$('#prescriptionTime').val(), comments=$('#prescriptionComments').val();
+  $('#errorMedicinePrescription').addClass('d-none');
+  if (appointment!="" && medicine!="" && dosage!="" && days!="" && time!="") {
+    $.ajax({
+      url: '/admin/citas/'+appointment+'/prescripciones/agregar',
+      type: 'POST',
+      dataType: 'json',
+      data: {medicine: medicine, dosage: dosage, days: days, time: time, comments: comments},
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+    })
+    .done(function(obj) {
+      if (obj.status) {
+        if (obj.count>0) {
+          $(".prescription-empty").remove();
+        }
+
+        if (obj.exist) {
+          Lobibox.notify('warning', {
+            title: 'La receta ya esta en la prescripción',
+            sound: true,
+            msg: 'La receta seleccionada ya se encuentra agregada en la prescripción.'
+          });
+        } else {
+          var comments='';
+          if (obj.data.comments!=null) {
+            comments=obj.data.comments;
+          }
+          $(".prescription-items").append('<tr code="'+obj.data.code+'">'+
+            '<td>'+
+            '<button type="button" class="btn btn-danger text-center delete-item" code="'+obj.data.code+'">'+
+            '<i class="fa fa-times"></i>'+
+            '</button>'+
+            '</td>'+
+            '<td>'+obj.data.medicine.name+'</td>'+
+            '<td>'+prescriptionDosage(obj.data.dosage)+'</td>'+
+            '<td>'+obj.data.days+'</td>'+
+            '<td>'+prescriptionTime(obj.data.time)+'</td>'+
+            '<td>'+comments+'</td>'+
+            '</tr>');
+
+          // Remove medicine of prescription
+          $('.prescription-items button.delete-item').on("click", function() {
+            removeMedicinePrescription($(this));
+          });
+        }
+
+        $('#prescriptionMedicine option[value=""], #prescriptionDosage option[value=""], #prescriptionTime option[value=""]').attr('selected', true);
+        $('#prescriptionMedicine, #prescriptionDosage, #prescriptionTime', '#prescriptionComments').attr('value', '');
+        $('#prescriptionDays').val('1');
+      } else {
+        errorNotification();
+      }
+    })
+    .fail(function() {
+      errorNotification();
+    });
+  } else {
+    $('#errorMedicinePrescription').removeClass('d-none');
+  }
+});
+
+// Add medicine to prescription (Edit)
+$('#addMedicinePrescriptionEdit').click(function(event) {
+  var appointment=$(this).attr('slug'), medicine=$('#prescriptionMedicine').val(), dosage=$('#prescriptionDosage').val(), days=$('#prescriptionDays').val(), time=$('#prescriptionTime').val(), comments=$('#prescriptionComments').val();
+  $('#errorMedicinePrescription').addClass('d-none');
+  if (appointment!="" && medicine!="" && dosage!="" && days!="" && time!="") {
+    $.ajax({
+      url: '/admin/citas/'+appointment+'/prescripciones/editar',
+      type: 'POST',
+      dataType: 'json',
+      data: {medicine: medicine, dosage: dosage, days: days, time: time, comments: comments},
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+    })
+    .done(function(obj) {
+      if (obj.status) {
+        if (obj.count>0) {
+          $(".prescription-empty").remove();
+        }
+
+        if (obj.exist) {
+          Lobibox.notify('warning', {
+            title: 'La receta ya esta en la prescripción',
+            sound: true,
+            msg: 'La receta seleccionada ya se encuentra agregada en la prescripción.'
+          });
+        } else {
+          var comments='';
+          if (obj.data.comments!=null) {
+            comments=obj.data.comments;
+          }
+          $(".prescription-items").append('<tr code="'+obj.data.code+'">'+
+            '<td>'+
+            '<button type="button" class="btn btn-danger text-center delete-item-edit" code="'+obj.data.code+'">'+
+            '<i class="fa fa-times"></i>'+
+            '</button>'+
+            '</td>'+
+            '<td>'+obj.data.medicine.name+'</td>'+
+            '<td>'+prescriptionDosage(obj.data.dosage)+'</td>'+
+            '<td>'+obj.data.days+'</td>'+
+            '<td>'+prescriptionTime(obj.data.time)+'</td>'+
+            '<td>'+comments+'</td>'+
+            '</tr>');
+
+          // Delete medicine of prescription
+          $('.prescription-items button.delete-item-edit').on("click", function() {
+            deleteMedicinePrescription($(this));
+          });
+
+          Lobibox.notify('success', {
+            title: 'Receta Agregada',
+            sound: true,
+            msg: 'La receta ha sido agregada a la prescripción exitosamente.'
+          });
+
+          $('#prescriptionMedicine, #prescriptionDosage, #prescriptionTime', '#prescriptionComments').val('');
+          $('#prescriptionDays').val('0');
+        }
+      } else {
+        errorNotification();
+      }
+    })
+    .fail(function() {
+      errorNotification();
+    });
+  } else {
+    $('#errorMedicinePrescription').removeClass('d-none');
+  }
+});
+
+// Remove medicine of prescription
+$('.prescription-items button.delete-item').click(function() {
+  removeMedicinePrescription($(this));
+});
+
+function removeMedicinePrescription(element) {
+  var code=element.attr('code'), appointment=$("#addMedicinePrescription").attr('slug');
+  $.ajax({
+    url: '/admin/citas/'+appointment+'/prescripciones/quitar',
+    type: 'POST',
+    dataType: 'json',
+    data: {code: code},
+    headers: {
+      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+  }).done(function(obj) {
+    if (obj.status) {
+      $(".prescription-items tr[code='"+code+"']").remove();
+      if (obj.count==0) {
+        $(".prescription-items").append('<tr class="text-center prescription-empty">'+
+          '<td colspan="6">No hay recetas agregadas a la prescripción</td>'+
+          '</tr>');
+      }
+    } else {
+      errorNotification();
+    }
+  })
+  .fail(function() {
+    errorNotification();
+  });
+}
+
+// Delete medicine of prescription
+$('.prescription-items button.delete-item-edit').click(function() {
+  deleteMedicinePrescription($(this));
+});
+
+function deleteMedicinePrescription(element) {
+  var code=element.attr('code'), appointment=$("#addMedicinePrescriptionEdit").attr('slug');
+  $.ajax({
+    url: '/admin/citas/'+appointment+'/prescripciones/eliminar',
+    type: 'POST',
+    dataType: 'json',
+    data: {code: code},
+    headers: {
+      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+  }).done(function(obj) {
+    if (obj.status) {
+      $(".prescription-items tr[code='"+code+"']").remove();
+      if (obj.count==0) {
+        $(".prescription-items").append('<tr class="text-center prescription-empty">'+
+          '<td colspan="6">No hay recetas agregadas a la prescripción</td>'+
+          '</tr>');
+      }
+
+      Lobibox.notify('success', {
+        title: 'Receta Eliminada',
+        sound: true,
+        msg: 'La receta ha sido eliminada de la prescripción exitosamente.'
+      });
+    } else {
+      errorNotification();
+    }
+  })
+  .fail(function() {
+    errorNotification();
+  });
+}
+
+function prescriptionDosage(dosage) {
+  if (dosage=='1') {
+    dosage='0-0-0';
+  } else if (dosage=='2') {
+    dosage='0-0-1';
+  } else if (dosage=='3') {
+    dosage='0-1-0';
+  } else if (dosage=='4') {
+    dosage='0-1-1';
+  } else if (dosage=='5') {
+    dosage='1-0-0';
+  } else if (dosage=='6') {
+    dosage='1-0-1';
+  } else if (dosage=='7') {
+    dosage='1-1-0';
+  } else if (dosage=='8') {
+    dosage='1-1-1';
+  } else {
+    dosage='Desconocido';
+  }
+  return dosage;
+}
+
+function prescriptionTime(time) {
+  if (time=='1') {
+    time='Despues de Comer';
+  } else if (time=='2') {
+    time='Antes de Comer';
+  } else {
+    time='Desconocido';
+  }
+  return time;
+}
+
+// Function for switch covid data
+$('select[name="covid"]').change(function() {
+  if ($(this).val()=='1') {
+    $('input[name="covid_date"], select[name="symptoms[]"], select[name="uci"], select[name="covid_state"]').attr('disabled', false);
+    $('select[name="symptoms[]"]').selectpicker('refresh');
+  } else {
+    $('input[name="covid_date"], select[name="symptoms[]"], select[name="uci"], select[name="covid_state"]').val('');
+    $('input[name="covid_date"], select[name="symptoms[]"], select[name="uci"], select[name="covid_state"]').attr('disabled', true);
+    $('select[name="symptoms[]"]').selectpicker('refresh');
+  }
+});

@@ -13,6 +13,8 @@
 
 @section('links')
 <link href="{{ asset('/admins/css/users/user-profile.css') }}" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="{{ asset('/admins/vendor/table/datatable/datatables.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('/admins/vendor/table/datatable/dt-global_style.css') }}">
 @endsection
 
 @section('content')
@@ -21,7 +23,7 @@
 	<div class="col-xl-4 col-lg-6 col-md-5 col-12 layout-spacing">
 
 		<div class="user-profile">
-			<div class="widget-content widget-content-area">
+			<div class="widget-content widget-content-area p-4">
 				<div class="d-flex justify-content-between">
 					<h3 class="">Datos Personales</h3>
 					@can('doctors.edit')
@@ -55,7 +57,103 @@
 		</div>
 	</div>
 
-	
+	<div class="col-xl-8 col-lg-6 col-md-7 col-12 layout-spacing">
+		<div class="user-profile layout-spacing">
+			<div class="widget-content widget-content-area p-4">
+				<div class="d-flex justify-content-between">
+					<h3 class="pb-3">Datos Adicionales</h3>
+				</div>
+				<div class="user-info-list">
+
+					<div class="">
+						<ul class="contacts-block list-unstyled mw-100 mx-2 mb-0">
+							<li class="contacts-block__item">
+								<span class="h6 text-black"><b>Locación:</b> @if(!is_null($user['location'])){{ $user['location']->name }}@else{{ 'No Ingresado' }}@endif</span>
+							</li>
+
+							<li class="contacts-block__item">
+								<span class="h6 text-black"><b>Dirección:</b> {{ $user->address }}</span>
+							</li>
+
+							<li class="contacts-block__item">
+								<span class="h6 text-black"><b>Género:</b> {{ $user->gender }}</span>
+							</li>
+
+							<li class="contacts-block__item">
+								<span class="h6 text-black">
+									<b>Especialidades:</b>
+									@foreach($user['specialties'] as $specialty)
+									{{ $specialty->name }}@if(!$loop->last){{ ', ' }}@endif
+									@endforeach
+								</span>
+							</li>
+
+							<li class="contacts-block__item">
+								<span class="h6 text-black"><b>Designación:</b> {{ $user->designation }}</span>
+							</li>
+
+							<li class="contacts-block__item">
+								<span class="h6 text-black"><b>Sobre Mi:</b> {{ $user->about }}</span>
+							</li>
+
+							<li class="contacts-block__item">
+								<span class="h6 text-black"><b>Educación:</b> {{ $user->education }}</span>
+							</li>
+
+							<li class="contacts-block__item">
+								<a href="{{ route('doctors.index') }}" class="btn btn-secondary">Volver</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-12 layout-spacing">
+		<div class="statbox widget box box-shadow">
+			<div class="widget-header">
+				<div class="row">
+					<div class="col-12">
+						<h4>Horarios del Doctor</h4>
+					</div>
+				</div>
+			</div>
+			<div class="widget-content widget-content-area shadow-none">
+
+				<div class="row">
+					<div class="col-12 mt-3">
+						<table class="table table-hover table-normal">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Día</th>
+									<th>Hora de Inicio</th>
+									<th>Hora Final</th>
+									<th>Límite de Citas</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach($user['schedules'] as $schedule)
+								<tr>
+									<td>{{ $loop->iteration }}</td>
+									<td>{{ $schedule->day }}</td>
+									<td>{{ $schedule->start->format("H:i A") }}</td>
+									<td>{{ $schedule->end->format("H:i A") }}</td>
+									<td>{{ $schedule->appointment_limit }}</td>
+								</tr>
+								@endforeach
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
+@endsection
+
+@section('scripts')
+<script src="{{ asset('/admins/vendor/table/datatable/datatables.js') }}"></script>
 @endsection

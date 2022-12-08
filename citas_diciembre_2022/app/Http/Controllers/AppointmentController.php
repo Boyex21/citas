@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Appointment;
 use App\Models\Schedule\Schedule;
+use App\Models\Specialty\Specialty;
 use App\Http\Requests\Appointment\AppointmentStoreRequest;
 use App\Http\Requests\Appointment\AppointmentUpdateRequest;
 use Illuminate\Http\Request;
@@ -36,10 +37,13 @@ class AppointmentController extends Controller
      */
     public function create() {
         $setting=$this->setting();
-    	$schedules=Schedule::where('state', '1')->orderBy('id', 'DESC')->get();
-    	$doctors=User::role(['Doctor'])->where('state', '1')->orderBy('name', 'DESC')->get();
-    	$patients=User::role(['Paciente'])->where('state', '1')->orderBy('name', 'DESC')->get();
-        return view('admin.appointments.create', compact('setting', 'doctors', 'patients', 'schedules'));
+        $specialties=[];
+        if (Auth::user()->hasRole('Doctor')) {
+            $specialties=Auth::user()['specialties']->where('state', 'Activo');
+        }
+        $doctors=User::role(['Doctor'])->where('state', '1')->orderBy('name', 'DESC')->get();
+        $patients=User::role(['Paciente'])->where('state', '1')->orderBy('name', 'DESC')->get();
+        return view('admin.appointments.create', compact('setting', 'doctors', 'patients', 'specialties'));
     }
 
     /**
@@ -50,15 +54,40 @@ class AppointmentController extends Controller
      */
     public function store(AppointmentStoreRequest $request) {
     	$schedule=Schedule::where('id', request('schedule_id'))->firstOrFail();
-    	$doctor=User::role(['Doctor'])->where('slug', request('doctor_id'))->firstOrFail();
-    	$patient=User::role(['Paciente'])->where('slug', request('patient_id'))->firstOrFail();
-    	$data=array('day' => request('day'), 'date' => request('date'), 'type' => request('type'), 'schedule_id' => $schedule->id, 'user_id' => $patient->id, 'doctor_id' => $doctor->id);
+        $specialty=Specialty::where('slug', request('specialty_id'))->firstOrFail();
+        if (Auth::user()->hasRole(['Paciente'])) {
+            $patient=Auth::user();
+        } else {
+            $patient=User::role(['Paciente'])->where('slug', request('patient_id'))->firstOrFail();
+        }
+        if (Auth::user()->hasRole(['Doctor'])) {
+            $doctor=Auth::user();
+        } else {
+            $doctor=User::role(['Doctor'])->where('slug', request('doctor_id'))->firstOrFail();
+        }
+        $countAppointment=Appointment::where([['date', date('Y-m-d', strtotime(request('date')))], ['schedule_id' , $schedule->id], ['doctor_id', $doctor->id]])->count();
+        if($countAppointment>=$schedule->appointment_limit) {
+            return redirect()->route('appointments.create')->with(['alert' => 'lobibox', 'type' => 'warning', 'title' => 'Horario Lleno', 'msg' => 'Este horario ya esta lleno de citas, intentalo en otro horario.']);
+        }
+    	
+    	$data=array('day' => date('N', strtotime(request('date'))), 'date' => request('date'), 'type' => request('type'), 'specialty_id' => $specialty->id, 'schedule_id' => $schedule->id, 'user_id' => $patient->id, 'doctor_id' => $doctor->id);
         $appointment=Appointment::create($data);
         if ($appointment) {
             return redirect()->route('appointments.index')->with(['alert' => 'sweet', 'type' => 'success', 'title' => 'Registro exitoso', 'msg' => 'La cita ha sido registrada exitosamente.']);
         } else {
             return redirect()->route('appointments.create')->with(['alert' => 'lobibox', 'type' => 'error', 'title' => 'Registro fallido', 'msg' => 'Ha ocurrido un error durante el proceso, intentelo nuevamente.'])->withInputs();
         }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Appointment $appointment) {
+        $setting=$this->setting();
+        return view('admin.appointments.show', compact('setting', 'appointment'));
     }
 
     /**
@@ -69,8 +98,8 @@ class AppointmentController extends Controller
      */
     public function edit(Appointment $appointment) {
         $setting=$this->setting();
-    	$schedules=Schedule::where('state', '1')->orderBy('id', 'DESC')->get();
-        return view('admin.appointments.edit', compact('setting', 'appointment', 'schedules'));
+        $specialties=$appointment['doctor']['specialties']->where('state', 'Activo');
+        return view('admin.appointments.edit', compact('setting', 'appointment', 'specialties'));
     }
 
     /**
@@ -82,7 +111,14 @@ class AppointmentController extends Controller
      */
     public function update(AppointmentUpdateRequest $request, Appointment $appointment) {
     	$schedule=Schedule::where('id', request('schedule_id'))->firstOrFail();
-    	$data=array('day' => request('day'), 'date' => request('date'), 'type' => request('type'), 'schedule_id' => $schedule->id);
+        $specialty=Specialty::where('slug', request('specialty_id'))->firstOrFail();
+
+        $countAppointment=Appointment::where([['id', '!=', $appointment->id], ['date', date('Y-m-d', strtotime(request('date')))], ['schedule_id' , $schedule->id], ['doctor_id', $appointment->doctor_id]])->count();
+        if($countAppointment>=$schedule->appointment_limit) {
+            return redirect()->route('appointments.create')->with(['alert' => 'lobibox', 'type' => 'warning', 'title' => 'Horario Lleno', 'msg' => 'Este horario ya esta lleno de citas, intentalo en otro horario.']);
+        }
+
+        $data=array('day' => date('N', strtotime(request('date'))), 'date' => request('date'), 'type' => request('type'), 'specialty_id' => $specialty->id, 'schedule_id' => $schedule->id);
         $appointment->fill($data)->save();
         if ($appointment) {
             return redirect()->route('appointments.edit', ['appointment' => $appointment->id])->with(['alert' => 'sweet', 'type' => 'success', 'title' => 'Edición exitosa', 'msg' => 'La cita ha sido editada exitosamente.']);
@@ -110,15 +146,6 @@ class AppointmentController extends Controller
         $appointment->fill(['state' => "0"])->save();
         if ($appointment) {
             return redirect()->route('appointments.index')->with(['alert' => 'sweet', 'type' => 'success', 'title' => 'Edición exitosa', 'msg' => 'La cita ha sido cancelada exitosamente.']);
-        } else {
-            return redirect()->route('appointments.index')->with(['alert' => 'lobibox', 'type' => 'error', 'title' => 'Edición fallida', 'msg' => 'Ha ocurrido un error durante el proceso, intentelo nuevamente.']);
-        }
-    }
-
-    public function attend(Request $request, Appointment $appointment) {
-        $appointment->fill(['state' => "1"])->save();
-        if ($appointment) {
-            return redirect()->route('appointments.index')->with(['alert' => 'sweet', 'type' => 'success', 'title' => 'Edición exitosa', 'msg' => 'La cita ha sido tratada exitosamente.']);
         } else {
             return redirect()->route('appointments.index')->with(['alert' => 'lobibox', 'type' => 'error', 'title' => 'Edición fallida', 'msg' => 'Ha ocurrido un error durante el proceso, intentelo nuevamente.']);
         }

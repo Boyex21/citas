@@ -43,7 +43,7 @@ class SecretaryController extends Controller
      */
     public function store(SecretaryStoreRequest $request) {
         $location=Location::where('slug', request('location_id'))->firstOrFail();
-        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'email' => request('email'), 'address' => request('address'), 'password' => Hash::make(request('password')), 'location_id' => $location->id);
+        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'email' => request('email'), 'address' => request('address'), 'gender' => request('gender'), 'password' => Hash::make(request('password')), 'location_id' => $location->id);
         $user=User::create($data);
 
         if ($user) {
@@ -98,7 +98,7 @@ class SecretaryController extends Controller
      */
     public function update(SecretaryUpdateRequest $request, User $user) {
         $location=Location::where('slug', request('location_id'))->firstOrFail();
-        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'address' => request('address'), 'state' => request('state'), 'location_id' => $location->id);
+        $data=array('name' => request('name'), 'lastname' => request('lastname'), 'phone' => request('phone'), 'address' => request('address'), 'gender' => request('gender'), 'state' => request('state'), 'location_id' => $location->id);
         $user->fill($data)->save();        
 
         if ($user) {

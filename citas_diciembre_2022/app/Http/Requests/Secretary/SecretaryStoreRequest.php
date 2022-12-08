@@ -35,6 +35,7 @@ class SecretaryStoreRequest extends FormRequest
       'email' => 'required|string|email|max:191|unique:users,email',
       'address' => 'required|string|min:2|max:191',
       'location_id' => 'required|'.Rule::in($locations),
+      'gender' => 'required|'.Rule::in(['1', '2', '3']),
       'password' => 'required|string|min:8|confirmed'
     ];
   }

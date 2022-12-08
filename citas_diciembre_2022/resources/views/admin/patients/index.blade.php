@@ -64,7 +64,7 @@
 										<img src="{{ image_exist('/admins/img/users/', $user->photo, true) }}" class="rounded-circle mr-2" width="45" height="45" alt="{{ $user->name." ".$user->lastname }}" title="{{ $user->name." ".$user->lastname }}"> {{ $user->name." ".$user->lastname }}
 									</td>
 									<td>{{ $user->email }}</td>
-									<td>{{ $user->phone }}</td>
+									<td>@if(!is_null($user->phone)){{ $user->phone }}@else{{ 'No Ingresado' }}@endif</td>
 									<td>{!! state($user->state) !!}</td>
 									@if(auth()->user()->can('patients.show') || auth()->user()->can('patients.edit') || auth()->user()->can('patients.active') || auth()->user()->can('patients.deactive') || auth()->user()->can('patients.delete'))
 									<td>

@@ -84,13 +84,42 @@
 									</select>
 								</div>
 
+								<div class="form-group col-lg-6 col-md-6 col-12">
+									<label class="col-form-label">Género<b class="text-danger">*</b></label>
+									<select class="form-control @error('gender') is-invalid @enderror" name="gender" required>
+										<option value="">Seleccione</option>
+										<option value="1" @if(old('gender')=='1') selected @endif>Masculino</option>
+										<option value="2" @if(old('gender')=='2') selected @endif>Femenino</option>
+										<option value="3" @if(old('gender')=='3') selected @endif>Otro</option>
+									</select>
+								</div>
+
+								<div class="form-group col-lg-6 col-md-6 col-12">
+									<label class="col-form-label">Designación<b class="text-danger">*</b></label>
+									<input class="form-control @error('designation') is-invalid @enderror" type="text" name="designation" required placeholder="Introduzca una designación" value="{{ old('designation') }}">
+								</div>
+
 								<div class="form-group col-12">
 									<label class="col-form-label">Especialidades<b class="text-danger">*</b></label>
 									<select class="form-control selectpicker @error('specialty_id') is-invalid @enderror" name="specialty_id[]" required title="Seleccione" data-size="10" multiple>
+										@if(is_null(old('specialty_id')))
 										@foreach($specialties as $specialty)
-										<option value="{{ $specialty->slug }}" @if(old('specialty_id')==$specialty->slug) selected @endif>{{ $specialty->name }}</option>
+										<option value="{{ $specialty->slug }}">{{ $specialty->name }}</option>
 										@endforeach
+										@else
+										{!! selectArray($specialties, old('specialty_id')) !!}
+										@endif
 									</select>
+								</div>
+
+								<div class="form-group col-12">
+									<label class="col-form-label">Sobre Mi<b class="text-danger">*</b></label>
+									<textarea class="form-control @error('about') is-invalid @enderror" name="about" required placeholder="Introduzca una descripción" rows="6">{{ old('about') }}</textarea>
+								</div>
+
+								<div class="form-group col-12">
+									<label class="col-form-label">Educación<b class="text-danger">*</b></label>
+									<textarea class="form-control @error('education') is-invalid @enderror" name="education" required placeholder="Introduzca la educación" rows="6">{{ old('education') }}</textarea>
 								</div>
 								
 								<div class="form-group col-lg-6 col-md-6 col-12">

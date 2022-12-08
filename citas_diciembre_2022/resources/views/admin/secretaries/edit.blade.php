@@ -89,6 +89,16 @@
 								</div>
 
 								<div class="form-group col-lg-6 col-md-6 col-12">
+									<label class="col-form-label">Género<b class="text-danger">*</b></label>
+									<select class="form-control @error('gender') is-invalid @enderror" name="gender" required>
+										<option value="">Seleccione</option>
+										<option value="1" @if($user->gender=='Masculino') selected @endif>Masculino</option>
+										<option value="2" @if($user->gender=='Femenino') selected @endif>Femenino</option>
+										<option value="3" @if($user->gender=='Otro') selected @endif>Otro</option>
+									</select>
+								</div>
+
+								<div class="form-group col-lg-6 col-md-6 col-12">
 									<label class="col-form-label">Estado<b class="text-danger">*</b></label>
 									<select class="form-control @error('state') is-invalid @enderror" name="state" required>
 										<option value="1" @if($user->state=="Activo") selected @endif>Activo</option>

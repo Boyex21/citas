@@ -96,8 +96,19 @@ Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function 
 		Route::get('/{appointment:id}/editar', 'AppointmentController@edit')->name('appointments.edit')->middleware('permission:appointments.edit');
 		Route::put('/{appointment:id}', 'AppointmentController@update')->name('appointments.update')->middleware('permission:appointments.edit');
 		Route::delete('/{appointment:id}', 'AppointmentController@destroy')->name('appointments.delete')->middleware('permission:appointments.delete');
-		Route::put('/{appointment:id}/atender', 'AppointmentController@attend')->name('appointments.attend')->middleware('permission:appointments.attend');
 		Route::put('/{appointment:id}/cancelar', 'AppointmentController@cancel')->name('appointments.cancel')->middleware('permission:appointments.cancel');
+
+		// Prescriptions
+		Route::prefix('{appointment:id}/prescripciones')->group(function () {
+			Route::get('/registrar', 'PrescriptionController@create')->name('prescriptions.create')->middleware('permission:appointments.attend');
+			Route::post('/', 'PrescriptionController@store')->name('prescriptions.store')->middleware('permission:appointments.attend');
+			Route::get('/editar', 'PrescriptionController@edit')->name('prescriptions.edit')->middleware('permission:appointments.edit');
+			Route::put('/', 'PrescriptionController@update')->name('prescriptions.update')->middleware('permission:appointments.edit');
+			Route::post('/agregar', 'PrescriptionController@prescriptionAdd')->middleware('permission:appointments.attend');
+			Route::post('/quitar', 'PrescriptionController@prescriptionRemove')->middleware('permission:appointments.attend');
+			Route::post('/editar', 'PrescriptionController@prescriptionUpdate')->middleware('permission:appointments.edit');
+			Route::post('/eliminar', 'PrescriptionController@prescriptionDelete')->middleware('permission:appointments.edit');
+		});
 	});
 
 	// Documents
@@ -113,7 +124,7 @@ Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function 
 		Route::post('/archivo/eliminar', 'DocumentController@destroyFile')->name('documents.files.delete')->middleware('permission:documents.edit');
 		Route::delete('/{document:id}', 'DocumentController@destroy')->name('documents.delete')->middleware('permission:documents.delete');
 	});
-    
+
 	// Specialties
 	Route::prefix('especialidades')->group(function () {
 		Route::get('/', 'SpecialtyController@index')->name('specialties.index')->middleware('permission:specialties.index');
@@ -124,18 +135,7 @@ Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function 
 		Route::delete('/{specialty:slug}', 'SpecialtyController@destroy')->name('specialties.delete')->middleware('permission:specialties.delete');
 		Route::put('/{specialty:slug}/activar', 'SpecialtyController@activate')->name('specialties.activate')->middleware('permission:specialties.active');
 		Route::put('/{specialty:slug}/desactivar', 'SpecialtyController@deactivate')->name('specialties.deactivate')->middleware('permission:specialties.deactive');
-	});
-
-	// Departments
-	Route::prefix('departamentos')->group(function () {
-		Route::get('/', 'DepartmentController@index')->name('departments.index')->middleware('permission:departments.index');
-		Route::get('/registrar', 'DepartmentController@create')->name('departments.create')->middleware('permission:departments.create');
-		Route::post('/', 'DepartmentController@store')->name('departments.store')->middleware('permission:departments.create');
-		Route::get('/{department:slug}/editar', 'DepartmentController@edit')->name('departments.edit')->middleware('permission:departments.edit');
-		Route::put('/{department:slug}', 'DepartmentController@update')->name('departments.update')->middleware('permission:departments.edit');
-		Route::delete('/{department:slug}', 'DepartmentController@destroy')->name('departments.delete')->middleware('permission:departments.delete');
-		Route::put('/{department:slug}/activar', 'DepartmentController@activate')->name('departments.activate')->middleware('permission:departments.active');
-		Route::put('/{department:slug}/desactivar', 'DepartmentController@deactivate')->name('departments.deactivate')->middleware('permission:departments.deactive');
+		Route::get('/doctor', 'SpecialtyController@getSpecialties')->name('specialties.get');
 	});
 
 	// Medicines
@@ -160,6 +160,7 @@ Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function 
 		Route::delete('/{schedule:id}', 'ScheduleController@destroy')->name('schedules.delete')->middleware('permission:schedules.delete');
 		Route::put('/{schedule:id}/activar', 'ScheduleController@activate')->name('schedules.activate')->middleware('permission:schedules.active');
 		Route::put('/{schedule:id}/desactivar', 'ScheduleController@deactivate')->name('schedules.deactivate')->middleware('permission:schedules.deactive');
+		Route::get('/disponible', 'ScheduleController@getSchedules')->name('schedules.get');
 	});
 
 	// Locations
@@ -183,6 +184,11 @@ Route::group(['middleware' => ['auth', 'admin'], 'prefix' => 'admin'], function 
 		Route::put('/{role:id}', 'RoleController@update')->name('roles.update')->middleware('permission:roles.edit');
 		Route::delete('/{role:id}', 'RoleController@destroy')->name('roles.delete')->middleware('permission:roles.delete');
 		Route::put('/{role:id}/permisos', 'RoleController@permissions')->name('roles.permissions')->middleware('permission:roles.permissions');
+	});
+
+	// Statistics
+	Route::prefix('estadisticas')->group(function () {
+		Route::get('/', 'StatisticController@index')->name('statistics.index')->middleware('permission:statistics.index');
 	});
 
 	// Settings

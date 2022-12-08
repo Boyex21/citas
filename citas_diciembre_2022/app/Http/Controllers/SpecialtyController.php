@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Specialty\Specialty;
 use App\Http\Requests\Specialty\SpecialtyStoreRequest;
 use App\Http\Requests\Specialty\SpecialtyUpdateRequest;
+use App\Http\Requests\Specialty\SpecialtyDoctorRequest;
 use Illuminate\Http\Request;
 
 class SpecialtyController extends Controller
@@ -103,5 +105,14 @@ class SpecialtyController extends Controller
         } else {
             return redirect()->route('specialties.index')->with(['alert' => 'lobibox', 'type' => 'error', 'title' => 'Edición fallida', 'msg' => 'Ha ocurrido un error durante el proceso, intentelo nuevamente.']);
         }
+    }
+
+    public function getSpecialties(SpecialtyDoctorRequest $request){
+        $doctor=User::role(['Doctor'])->where('slug', request('doctor_id'))->first();
+        if (!is_null($doctor)) {
+            $specialties=$doctor->specialties()->where('state', '1')->get();
+            return response()->json(['state' => true, 'data' => $specialties]);
+        }
+        return response()->json(['state' => false]);
     }
 }

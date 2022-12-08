@@ -54,6 +54,38 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="col-xl-8 col-lg-6 col-md-7 col-12 layout-spacing">
+		<div class="user-profile layout-spacing">
+			<div class="widget-content widget-content-area">
+				<div class="d-flex justify-content-between">
+					<h3 class="pb-3">Datos Adicionales</h3>
+				</div>
+				<div class="user-info-list">
+
+					<div class="">
+						<ul class="contacts-block list-unstyled mw-100 mx-2 mb-0">
+							<li class="contacts-block__item">
+								<span class="h6 text-black"><b>Locación:</b> @if(!is_null($user['location'])){{ $user['location']->name }}@else{{ 'No Ingresado' }}@endif</span>
+							</li>
+
+							<li class="contacts-block__item">
+								<span class="h6 text-black"><b>Dirección:</b> {{ $user->address }}</span>
+							</li>
+
+							<li class="contacts-block__item">
+								<span class="h6 text-black"><b>Género:</b> {{ $user->gender }}</span>
+							</li>
+
+							<li class="contacts-block__item">
+								<a href="{{ route('users.index') }}" class="btn btn-secondary">Volver</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 @endsection

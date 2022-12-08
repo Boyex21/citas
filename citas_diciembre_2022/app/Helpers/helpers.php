@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\User;
+use App\Models\Appointment;
+
 function state($state) {
 	if ($state=='Inactivo') {
 		return '<span class="badge badge-danger">'.$state.'</span>';
@@ -154,6 +157,73 @@ function selectArrayRoles($arrays, $selectedItems) {
 	return $selects;
 }
 
+function selectArrayDoctorSpecialties($doctor, $selectedItems) {
+	$doctor=User::with(['specialties'])->role(['Doctor'])->where('slug', $doctor)->first();
+	$selects="";
+	foreach ($doctor['specialties']->where('state', 'Activo') as $array) {
+		$select="";
+		if (count($selectedItems)>0) {
+			foreach ($selectedItems as $selected) {
+				if (is_object($selected) && $selected->slug==$array->slug) {
+					$select="selected";
+					break;
+				} elseif ($selected==$array->slug) {
+					$select="selected";
+					break;
+				}
+			}
+		}
+		$selects.='<option value="'.$array->slug.'" '.$select.'>'.$array->name.'</option>';
+	}
+	return $selects;
+}
+
+function selectArrayDoctorSchedules($doctor, $selectedItems, $date) {
+	$doctor=User::with(['schedules'])->role(['Doctor'])->where('slug', $doctor)->first();
+	$selects="";
+	foreach ($doctor['schedules']->where('state', 'Activo') as $array) {
+		$select="";
+		if (count($selectedItems)>0) {
+			foreach ($selectedItems as $selected) {
+				if (is_object($selected) && $selected->id==$array->id) {
+					$select="selected";
+					break;
+				} elseif ($selected==$array->id) {
+					$select="selected";
+					break;
+				}
+			}
+		}
+
+		$countAppointment=Appointment::where([['date', date('Y-m-d', strtotime($date))], ['schedule_id' , $array->id], ['doctor_id', $doctor->id]])->count();
+		$limit=$array->appointment_limit-$countAppointment;
+
+		$selects.='<option value="'.$array->id.'" '.$select.'>'.$array->start->format('H:i A').' - '.$array->end->format('H:i A').' (Citas Disponibles: '.$limit.')</option>';
+	}
+	return $selects;
+}
+
+function selectArraySymptoms($arrays, $selectedItems) {
+	$selects="";
+	foreach ($arrays as $array) {
+		$select="";
+		if (count($selectedItems)>0) {
+			foreach ($selectedItems as $selected) {
+				if (is_object($selected) && $selected->symptom==$array['name']) {
+					$select="selected";
+					break;
+				} elseif (!is_object($selected) && $selected==$array['id']) {
+					$select="selected";
+					break;
+				}
+			}
+		}
+
+		$selects.='<option value="'.$array['id'].'" '.$select.'>'.$array['name'].'</option>';
+	}
+	return $selects;
+}
+
 function store_files($file, $file_name, $route) {
 	$image=$file_name.".".$file->getClientOriginalExtension();
 	if (file_exists(public_path().$route.$image)) {
@@ -186,4 +256,45 @@ function typeAppointment($type) {
 		return '<span class="badge badge-primary">'.$type.'</span>';
 	}
 	return '<span class="badge badge-dark">'.$type.'</span>';
+}
+
+function age($date) {
+    $birthday=new DateTime($date);
+    $now=new DateTime(date("Y-m-d"));
+    $diff=$now->diff($birthday);
+    return $diff->format("%y");
+}
+
+function prescriptionDosage($dosage) {
+    if ($dosage=='1') {
+    	$dosage='0-0-0';
+    } elseif ($dosage=='2') {
+    	$dosage='0-0-1';
+    } elseif ($dosage=='3') {
+    	$dosage='0-1-0';
+    } elseif ($dosage=='4') {
+    	$dosage='0-1-1';
+    } elseif ($dosage=='5') {
+    	$dosage='1-0-0';
+    } elseif ($dosage=='6') {
+    	$dosage='1-0-1';
+    } elseif ($dosage=='7') {
+    	$dosage='1-1-0';
+    } elseif ($dosage=='8') {
+    	$dosage='1-1-1';
+    } else {
+    	$dosage='Desconocido';
+    }
+    return $dosage;
+}
+
+function prescriptionTime($time) {
+    if ($time=='1') {
+    	$time='Despues de Comer';
+    } elseif ($time=='2') {
+    	$time='Antes de Comer';
+    } else {
+    	$time='Desconocido';
+    }
+    return $time;
 }
